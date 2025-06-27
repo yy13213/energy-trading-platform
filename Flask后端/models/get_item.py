@@ -4,6 +4,7 @@ from config import User, contract_name, contract_address, contract_abi
 #from utils import common_utils
 import common_utils
 from results import *
+from blockchain_cache import cached_blockchain_call
 
 
 
@@ -15,8 +16,8 @@ def get_equipment_impl(id):
     username = jwt.decode(token, 'secret_key', algorithms=[
                           'HS256'])["username"]
     user = User.query.filter_by(username=username).first()
-    res = common_utils.common_bc_req(user.address, contract_name, "getItem", [
-                                     equ_id], contract_address, contract_abi)
+    res = cached_blockchain_call(user.address, contract_name, "getItem", [
+                                 equ_id], contract_address, contract_abi)
     result = res.text.strip('[]')
     result = result.strip('"')
     # print(result)
@@ -33,8 +34,8 @@ def get_equipment_id_impl(token):
                           'HS256'])["username"]
     # 从用户名查找数据库中用户的地址  ： user.address
     user = User.query.filter_by(username=username).first()
-    res = common_utils.common_bc_req(user.address, contract_name, "getUserItems", [
-                                     user.address], contract_address, contract_abi)
+    res = cached_blockchain_call(user.address, contract_name, "getUserItems", [
+                                 user.address], contract_address, contract_abi)
     if res.status_code == 200:
         # 将返回的字符串转为列表
         # return json.loads(json.loads(res.text)[0])
@@ -73,12 +74,12 @@ def get_id_list_impl(token):
                           'HS256'])["username"]
     # 从数据库中查到用户地址
     user = User.query.filter_by(username=username).first()
-    res = common_utils.common_bc_req(user.address,
-                                     contract_name,
-                                     'getIdList',
-                                     [],
-                                     contract_address,
-                                     contract_abi)
+    res = cached_blockchain_call(user.address,
+                                 contract_name,
+                                 'getIdList',
+                                 [],
+                                 contract_address,
+                                 contract_abi)
     # print("打印值------------------------------",res.text)
     result = res.text.strip('[]')
     result = result.strip('"')

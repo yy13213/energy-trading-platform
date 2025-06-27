@@ -6,6 +6,8 @@
     <!-- 开发环境版本，包含了有帮助的命令行警告 -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- 缓存系统 -->
+    <script type="text/javascript" src="../common/cache.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <link href="../css/能源市场/style.css" rel="stylesheet" type="text/css">
     <link rel="shortcut icon" href="../logo/a252611c614b4ad9aa23b814d858f15.png" type="image/x-icon"/>
@@ -149,28 +151,18 @@
                 enengy: {}
             },
             methods: {
-                get_sell_energy() {
-                    const currentDate = new Date().toLocaleString();
-                    const data = {
-                        // pass
-                    };
-                    const token = localStorage.getItem('token')
-                    const config = {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'Authorization': ` ${token}`,
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    };
-                    axios.post('http://10.24.116.63:5000/getAvailableEnergy', data, config)
-                        .then(response => {
-                            this.enengy = response.data;
-                            console.log(this.enengy)
-                        })
-                        .catch(error => {
-                            console.log(error);
-                        });
+                async get_sell_energy() {
+                    try {
+                        console.log('⚡ 开始获取能源市场数据...');
+                        
+                        // 使用缓存系统获取数据
+                        const response = await cachedRequest('http://127.0.0.1:8080/getAvailableEnergy');
+                        
+                        this.enengy = response.data;
+                        console.log('✅ 能源市场数据加载完成:', this.enengy);
+                    } catch (error) {
+                        console.error('❌ 获取能源市场数据失败:', error);
+                    }
                 }
             },
             created() {
@@ -178,75 +170,47 @@
             }
         })
 
-      new Vue({
-      el: '#app2',
-      data() {
-          return {
-              isAuthenticated: false,
-              username: '完成'
-          }
-      },
-      methods: {
-        
-        // 添加 token 验证逻辑
-        verifyToken(token, secret) {
-            // 解码 token，验证是否过期以及签名是否正确
-              const decoded = verify(token, secret);
-              // 返回 token 包含的信息
-              return decoded;
-          }
-      },
-
+        // 注释掉未使用的Vue实例，避免在页面显示多余文字
+        /*
+        new Vue({
+            el: '#app2',
+            data() {
+                return {
+                    isAuthenticated: false,
+                    username: '完成'
+                }
+            },
+            methods: {
+                // token 验证逻辑
+                verifyToken(token, secret) {
+                    // 解码 token，验证是否过期以及签名是否正确
+                    const decoded = verify(token, secret);
+                    // 返回 token 包含的信息
+                    return decoded;
+                },
+            },
+            mounted() {
+                const token = localStorage.getItem('token')
+                if (token) {
+                    const decoded = this.verifyToken(token, 'secret_key')
+                    console.log(decoded)
+                    if (decoded) {
+                        this.isAuthenticated = true
+                        this.username = decoded.username
+                    } else {
+                        // token 无效，重定向至登录页面
+                        window.location.href = '../login/login.html'
+                        alert(" token 无效，重定向至登录页面")
+                    }
+                } else {
+                    // token 不存在，重定向至登录页面
+                    window.location.href = '../login/login.html'
+                    alert(" token 不存在，重定向至登录页面")
+                }
+            }
         })
-
+        */
         
     </script>
 </body>
-
-</html>
-
-
-      new Vue({
-      el: '#app2',
-      data() {
-          return {
-              isAuthenticated: false,
-              username: '完成'
-          }
-      },
-      methods: {
-
-        // 添加 token 验证逻辑
-        verifyToken(token, secret) {
-            // 解码 token，验证是否过期以及签名是否正确
-              const decoded = verify(token, secret);
-              // 返回 token 包含的信息
-              return decoded;
-          }
-      },
-      mounted() {
-          const token = localStorage.getItem('token')
-          if (token) {
-              const decoded = this.verifyToken(token, 'secret_key')
-              console.log(decoded)
-              if (decoded) {
-                  this.isAuthenticated = true
-                  this.username = decoded.username
-              } else {
-                  // token 无效，重定向至登录页面
-                  window.location.href = '../login/login.html'
-                  alert(" token 无效，重定向至登录页面")
-              }
-          } else {
-              // token 不存在，重定向至登录页面
-              window.location.href = '../login/login.html'
-              alert(" token 不存在，重定向至登录页面")
-          }
-          }
-        })
-
-
-    </script>
-</body>
-
 </html>

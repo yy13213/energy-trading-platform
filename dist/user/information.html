@@ -124,45 +124,45 @@
   <script src="../data/vue.js"></script>
   <!-- import JavaScript -->
   <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script type="text/javascript">
+  	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<!-- 缓存系统 -->
+	<script type="text/javascript" src="../common/cache.js"></script>
+	<script type="text/javascript">
       var valu1;
 
-      function fetchItems() {
-          const token = localStorage.getItem('token')
-          // const token =
-          // 	'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3MSwidXNlcm5hbWUiOiJ3aG53aG4ifQ.K1h8Q9uGvq9d7Bj5AJz2zxlNg2_ul8uwK4DC8byd0Lk';
-          const config = {
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json',
-                  'Authorization': ` ${token}`,
-                  'X-Requested-With': 'XMLHttpRequest'
+      // 使用缓存系统和预加载数据优化加载速度
+      async function fetchItems() {
+          try {
+              console.log('⚡ 开始获取仪表盘能源数据...');
+              
+              let energyResponse, sellEnergyResponse;
+              
+              // 优先使用预加载的数据
+              if (window.dashboardData) {
+                  console.log('🚀 使用预加载的能源数据 (瞬时加载)');
+                  energyResponse = { data: window.dashboardData.userEnergy };
+                  sellEnergyResponse = { data: window.dashboardData.sellEnergy };
+              } else {
+                  console.log('🔄 预加载数据不可用，使用缓存请求...');
+                  // 使用缓存系统并发请求
+                  [energyResponse, sellEnergyResponse] = await Promise.all([
+                      cachedRequest('http://127.0.0.1:8080/get_user_energy'),
+                      cachedRequest('http://127.0.0.1:8080/get_user_sell_energy')
+                  ]);
               }
-          };
-          const data = {
-              // keyword: this.keyword
+              
+              valu1 = energyResponse.data;
+              valu2 = sellEnergyResponse.data;
+              console.log('✅ 仪表盘能源数据加载完成:', {剩余: valu1, 交易中: valu2});
+              
+              // 只在所有数据加载完后渲染一次图表
+              updateChart();
+          } catch (error) {
+              console.error('❌ 获取仪表盘能源数据失败:', error);
+              valu1 = 0;
+              valu2 = 0;
+              updateChart();
           }
-          // 正在出售的能源
-          axios.post('http://10.24.116.63:5000/get_user_energy', data, config)
-              .then(response => {
-                  valu1 = response.data;
-                  console.log(valu1);
-                  updateChart(); // 自动更新图表
-              })
-              .catch(error => {
-                  console.log(error);
-              });
-          // 正在出售能源数量
-          axios.post('http://10.24.116.63:5000/get_user_sell_energy', data, config)
-              .then(response => {
-                  valu2 = response.data;
-                  // console.log(valu2);
-                  updateChart(); // 自动更新图表
-              })
-              .catch(error => {
-                  console.log(error);
-              });
       }
 
       function updateChart() {
@@ -226,7 +226,50 @@
           window.addEventListener('resize', myChart.resize);
       }
 
-      fetchItems(); // 页面加载后自动获取数据并更新图表
+      // 并发加载所有仪表盘数据
+      async function initializeDashboard() {
+          console.log('🚀 仪表盘并发加载开始...');
+          const startTime = performance.now();
+          
+          try {
+              // 并发请求所有需要的数据
+              const [energyResponse, equipmentResponse] = await Promise.all([
+                  // 获取能源数据的多个接口
+                  Promise.all([
+                      cachedRequest('http://localhost:8080/get_user_energy'),
+                      cachedRequest('http://localhost:8080/get_user_sell_energy')
+                  ]),
+                  // 获取设备数据
+                  cachedRequest('http://localhost:8080/get_user_selling_equipment')
+              ]);
+              
+              const endTime = performance.now();
+              console.log(`⚡ 仪表盘数据并发加载完成，耗时: ${(endTime - startTime).toFixed(2)}ms`);
+              
+              // 处理能源数据
+              const [userEnergyRes, sellEnergyRes] = energyResponse;
+              window.dashboardData = {
+                  userEnergy: userEnergyRes.data || 0,
+                  sellEnergy: sellEnergyRes.data || 0,
+                  equipment: equipmentResponse.data || []
+              };
+              
+              console.log('📊 仪表盘数据缓存完成:', window.dashboardData);
+              
+              // 渲染图表
+              fetchItems(); // 能源图表
+              fetchItems1(); // 设备图表
+              
+          } catch (error) {
+              console.error('❌ 仪表盘数据加载失败:', error);
+              // 降级：单独加载
+              fetchItems();
+              fetchItems1();
+          }
+      }
+      
+      // 启动仪表盘
+      initializeDashboard();
       
   </script>
 
@@ -235,135 +278,146 @@
   </div>
 
   <script type="text/javascript">
-    fetchItems1();
-    var addTime=[]
-    var price=[]
-    function fetchItems1() {
-        const token = localStorage.getItem('token')
-          const config = {
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json',
-                  'Authorization': ` ${token}`,
-                  'X-Requested-With': 'XMLHttpRequest'
-              }
-          };
-          const data = {
-              // keyword: this.keyword
-          }
-          // 正在出售设备金额
-          axios.post('http://10.24.116.63:5000/get_equipment_id', data, config)
-              .then(response => {
-                // if(this.data === undefined) {
-                //       this.data = []
-                //   }
-                  for(i in response.data){
-                    this.addTime.push(response.data[i].addTime)
-                    this.price.push(parseFloat(response.data[i].price))
-                  }
-                  console.log(this.addTime)
-                  console.log(this.price)
-                  // this.price = response.data.price
-              })
-              .catch(error => {
-                  console.log(error);
-              });
-          // 正在出售设备时间
-          (function(){
-            setTimeout(function() {
-               
-    var chartDom = document.getElementById('container1');
-    var myChart = echarts.init(chartDom);
-    var option;
-
-    // prettier-ignore
-    let dataAxis = this.addTime;
-    // prettier-ignore
-    let data = this.price;
-    let yMax = 500;
-    let dataShadow = [];
-    for (let i = 0; i < data.length; i++) {
-      dataShadow.push(yMax);
-    }
-    option = {
-      title: {
-        text: '您正在出售的产权',
-        subtext: 'time-price'
-      },
-      xAxis: {
-        data: dataAxis,
-        axisLabel: {
-          inside: true,
-          color: '#fff',
-          interval: 0,
-          formatter: function (value) {
-            return value.split('').join('\n');
-          }
-        },
-        axisTick: {
-          show: false
-        },
-        axisLine: {
-          show: false
-        },
-        z: 10
-      },
-      yAxis: {
-        axisLine: {
-          show: false
-        },
-        axisTick: {
-          show: false
-        },
-        axisLabel: {
-          color: '#999'
-        }
-      },
-      dataZoom: [
-        {
-          type: 'inside'
-        }
-      ],
-      series: [
-        {
-          type: 'bar',
-          showBackground: true,
-          itemStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#83bff6' },
-              { offset: 0.5, color: '#188df0' },
-              { offset: 1, color: '#188df0' }
-            ])
-          },
-          emphasis: {
-            itemStyle: {
-              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: '#2378f7' },
-                { offset: 0.7, color: '#2378f7' },
-                { offset: 1, color: '#83bff6' }
-              ])
+    var addTime = []
+    var price = []
+    
+    // 使用缓存系统和预加载数据优化设备数据获取
+    async function fetchItems1() {
+        try {
+            console.log('📈 开始获取用户出售设备数据...')
+            
+            let response;
+            
+            // 优先使用预加载的数据
+            if (window.dashboardData && window.dashboardData.equipment) {
+                console.log('🚀 使用预加载的设备数据 (瞬时加载)');
+                response = { data: window.dashboardData.equipment };
+            } else {
+                console.log('🔄 预加载数据不可用，使用缓存请求...');
+                // 使用缓存系统获取数据
+                response = await cachedRequest('http://127.0.0.1:8080/get_user_selling_equipment');
             }
-          },
-          data: data
+            
+            console.log('📊 获取到设备数据:', response.data)
+            
+            // 清空之前的数据
+            addTime = []
+            price = []
+            
+            // 处理响应数据
+            if (response.data && response.data.length > 0) {
+                for (let i = 0; i < response.data.length; i++) {
+                    addTime.push(response.data[i].addTime)
+                    price.push(parseFloat(response.data[i].price))
+                }
+                console.log('✅ 设备数据处理完成:', {时间: addTime.length, 价格: price.length})
+            } else {
+                console.log('📊 没有正在出售的设备')
+            }
+            
+            // 数据获取完成后渲染图表
+            renderChart()
+        } catch (error) {
+            console.error('❌ 获取设备数据失败:', error)
+            renderChart() // 即使失败也渲染空图表
         }
-      ]
-    };
-    // Enable data zoom when user click bar.
-    const zoomSize = 6;
-    myChart.on('click', function (params) {
-      console.log(dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)]);
-      myChart.dispatchAction({
-        type: 'dataZoom',
-        startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
-        endValue:
-          dataAxis[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
-      });
-    });
+    }
+    
+    function renderChart() {
+        console.log('🎨 开始渲染图表...')
+        
+        var chartDom = document.getElementById('container1')
+        if (!chartDom) {
+            console.error('❌ 找不到图表容器')
+            return
+        }
+        
+        var myChart = echarts.init(chartDom)
+        
+        var option = {
+            title: {
+                text: '您正在出售的产权',
+                subtext: 'time-price'
+            },
+            xAxis: {
+                data: addTime,
+                axisLabel: {
+                    inside: true,
+                    color: '#fff',
+                    interval: 0,
+                    formatter: function (value) {
+                        return value.split('').join('\n')
+                    }
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLine: {
+                    show: false
+                },
+                z: 10
+            },
+            yAxis: {
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    color: '#999'
+                }
+            },
+            dataZoom: [
+                {
+                    type: 'inside'
+                }
+            ],
+            series: [
+                {
+                    type: 'bar',
+                    showBackground: true,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#83bff6' },
+                            { offset: 0.5, color: '#188df0' },
+                            { offset: 1, color: '#188df0' }
+                        ])
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#2378f7' },
+                                { offset: 0.7, color: '#2378f7' },
+                                { offset: 1, color: '#83bff6' }
+                            ])
+                        }
+                    },
+                    data: price
+                }
+            ]
+        }
+        
+        // 点击缩放功能
+        const zoomSize = 6
+        myChart.on('click', function (params) {
+            myChart.dispatchAction({
+                type: 'dataZoom',
+                startValue: addTime[Math.max(params.dataIndex - zoomSize / 2, 0)],
+                endValue: addTime[Math.min(params.dataIndex + zoomSize / 2, price.length - 1)]
+            })
+        })
 
-    option && myChart.setOption(option);
-            }, 1000); // 延迟一秒加载
-          })();
-      }
+        myChart.setOption(option)
+        console.log('✅ 图表渲染完成')
+        
+        window.addEventListener('resize', function() {
+            myChart.resize()
+        })
+    }
+    
+    // 页面加载后获取数据
+    fetchItems1()
       
     
      

@@ -81,9 +81,9 @@ matplotlib-inline==0.1.6
 mccabe==0.7.0
 multidict==6.0.4
 nest-asyncio==1.5.6
-numpy==1.23.5
+numpy
 oauthlib==3.2.2
-OpenAIAuth==0.0.5
+OpenAIAuth
 openpyxl==3.0.10
 opt-einsum==3.3.0
 packaging==22.0
@@ -111,7 +111,7 @@ PyDispatcher==2.0.6
 pydocstyle==6.2.3
 pyflakes==3.0.1
 Pygments==2.13.0
-pyinstaller==5.3
+pyinstaller
 pyinstaller-hooks-contrib==2022.9
 PyJWT==2.6.0
 PyMySQL==1.0.2
@@ -120,9 +120,9 @@ pyparsing==3.0.9
 python-dateutil==2.8.2
 python-lsp-jsonrpc==1.0.0
 pytoolconfig==1.2.5
-pytz==2022.6
-pywin32==305
-pywin32-ctypes==0.2.0
+pytz
+# pywin32
+# pywin32-ctypes==0.2.0
 PyYAML==6.0
 pyzmq==24.0.1
 queuelib==1.6.2
@@ -161,7 +161,7 @@ tqdm==4.64.1
 traitlets==5.7.1
 transformers==4.25.1
 Twisted==22.10.0
-twisted-iocpsupport==1.0.2
+#twisted-iocpsupport==1.0.2
 types-pytz==2022.6.0.1
 typing_extensions==4.4.0
 ujson==5.7.0

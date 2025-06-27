@@ -175,7 +175,7 @@
                     const data = {
                         id: this.id
                     }
-                    axios.post('http://10.24.116.63:5000/get_equipment_id', data, config)
+                    axios.post('http://127.0.0.1:8080/get_equipment_id', data, config)
                         .then(response => {
                             this.persons = response.data;
                             console.log(this.persons)
@@ -213,7 +213,7 @@
                         id: this.id,
                         price : this.price
                     }
-                    axios.post('http://10.24.116.63:5000/create_production_order', data, config)
+                    axios.post('http://127.0.0.1:8080/create_production_order', data, config)
                         .then(response => {
                             this.persons = response.data;
                             // 将跳转代码移到这里
@@ -239,7 +239,7 @@
                     const data = {
                         itemId: this.id
                     }
-                    axios.post('http://10.24.116.63:5000/create_buy_order', data, config)
+                    axios.post('http://127.0.0.1:8080/create_buy_order', data, config)
                         .then(response => {
                             this.persons = response.data;
                             this.price = 0; // 将 price 更新为 0

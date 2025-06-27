@@ -152,44 +152,31 @@
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<!-- <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script> -->
 	<script type="text/javascript" src="../css/我的能源/echarts.js"></script>
+	<!-- 缓存系统 -->
+	<script type="text/javascript" src="../common/cache.js"></script>
 	<script type="text/javascript">
 		var valu1;
 
-		function fetchItems() {
-			const token = localStorage.getItem('token')
-			// const token =
-			// 	'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3MSwidXNlcm5hbWUiOiJ3aG53aG4ifQ.K1h8Q9uGvq9d7Bj5AJz2zxlNg2_ul8uwK4DC8byd0Lk';
-			const config = {
-				headers: {
-					'Content-Type': 'application/json',
-					'Accept': 'application/json',
-					'Authorization': ` ${token}`,
-					'X-Requested-With': 'XMLHttpRequest'
-				}
-			};
-			const data = {
-				// keyword: this.keyword
+		// 使用缓存系统和并发请求，优化加载速度
+		async function fetchItems() {
+			try {
+				console.log('⚡ 开始获取能源数据...');
+				
+				// 使用缓存系统并发请求两个接口
+				const [energyResponse, sellEnergyResponse] = await Promise.all([
+					cachedRequest('http://127.0.0.1:8080/get_user_energy'),
+					cachedRequest('http://127.0.0.1:8080/get_user_sell_energy')
+				]);
+				
+				valu1 = energyResponse.data;
+				valu2 = sellEnergyResponse.data;
+				console.log('✅ 能源数据加载完成:', {剩余: valu1, 交易中: valu2});
+				
+				// 只在所有数据加载完后渲染一次图表
+				updateChart();
+			} catch (error) {
+				console.error('❌ 获取能源数据失败:', error);
 			}
-			// 正在出售的能源
-			axios.post('http://192.168.31.164:5000/get_user_energy', data, config)
-				.then(response => {
-					valu1 = response.data;
-					console.log(valu1);
-					updateChart(); // 自动更新图表
-				})
-				.catch(error => {
-					console.log(error);
-				});
-			// 正在出售能源数量
-			axios.post('http://192.168.31.164:5000/get_user_sell_energy', data, config)
-				.then(response => {
-					valu2 = response.data;
-					// console.log(valu2);
-					updateChart(); // 自动更新图表
-				})
-				.catch(error => {
-					console.log(error);
-				});
 		}
 
 		function updateChart() {
@@ -283,7 +270,7 @@
 							'X-Requested-With': 'XMLHttpRequest'
 						}
 					};
-					axios.post('http://192.168.31.164:5000/getUserAvailableEnergy', data, config)
+					axios.post('http://127.0.0.1:8080/getUserAvailableEnergy', data, config)
 						.then(response => {
 							this.enengy = response.data;
 							console.log(this.enengy)
@@ -305,7 +292,7 @@
 							'X-Requested-With': 'XMLHttpRequest'
 						}
 					};
-					axios.post('http://10.24.116.63:5000/cancel_energy_sale', data, config)
+					axios.post('http://127.0.0.1:8080/cancel_energy_sale', data, config)
 						.then(response => {
 							var jsonData = JSON.stringify(response.data.data);
 							alert(jsonData);
@@ -342,7 +329,7 @@
 						}
 					};
 
-					axios.post('http://192.168.31.164:5000/sell_energy', data, config)
+					axios.post('http://127.0.0.1:8080/sell_energy', data, config)
 						.then(response => {
 							var jsonData = JSON.stringify(response.data.data);
 							alert(jsonData);
@@ -367,6 +354,8 @@
 			}
 		}
 		
+	// 注释掉未使用的Vue实例，避免在页面显示多余文字
+	/*
 	new Vue({
       el: '#app2',
       data() {
@@ -376,17 +365,16 @@
           }
       },
       methods: {
-        
-        // 添加 token 验证逻辑
+        // token 验证逻辑
         verifyToken(token, secret) {
             // 解码 token，验证是否过期以及签名是否正确
               const decoded = verify(token, secret);
               // 返回 token 包含的信息
               return decoded;
           }
-      },
- 
-        })
+      }
+    })
+	*/
 
 		
 	</script>

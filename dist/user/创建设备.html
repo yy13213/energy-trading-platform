@@ -214,7 +214,7 @@
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     };
-                    axios.post('http://10.24.116.63:5000/create_equipment', data, config)
+                    axios.post('http://127.0.0.1:8080/create_equipment', data, config)
                         .then(response => {
                             alert("添加成功！")
                             this.persons = response.data;

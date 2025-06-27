@@ -136,6 +136,32 @@
 
       })
 
+    // 页面加载时记录客服访问日志
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('📞 客服页面加载中...');
+        
+        // 记录客服访问
+        const token = localStorage.getItem('token');
+        if (token) {
+            fetch('http://localhost:8080/log_customer_service', {
+                method: 'POST',
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('✅ 客服访问记录成功:', data);
+              })
+              .catch(error => {
+                  console.error('❌ 客服访问记录失败:', error);
+              });
+        }
+        
+        console.log('📞 客服页面加载完成');
+    });
+
 </script>
 </body>
 

@@ -144,7 +144,7 @@
               // keyword: this.keyword
           }
           // 正在出售的能源
-          axios.post('http://10.24.116.63:5000/get_user_energy', data, config)
+          axios.post('http://127.0.0.1:8080/get_user_energy', data, config)
               .then(response => {
                   valu1 = response.data;
                   console.log(valu1);
@@ -154,7 +154,7 @@
                   console.log(error);
               });
           // 正在出售能源数量
-          axios.post('http://10.24.116.63:5000/get_user_sell_energy', data, config)
+          axios.post('http://127.0.0.1:8080/get_user_sell_energy', data, config)
               .then(response => {
                   valu2 = response.data;
                   // console.log(valu2);
@@ -252,7 +252,7 @@
               // keyword: this.keyword
           }
           // 正在出售设备金额
-          axios.post('http://10.24.116.63:5000/get_equipment_id', data, config)
+          axios.post('http://127.0.0.1:8080/get_equipment_id', data, config)
               .then(response => {
                 // if(this.data === undefined) {
                 //       this.data = []

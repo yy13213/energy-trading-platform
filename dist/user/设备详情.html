@@ -174,7 +174,7 @@
                     const data = {
                         // keyword: this.keyword
                     }
-                    axios.post('http://10.24.116.63:5000/get_items', data, config)
+                    axios.post('http://127.0.0.1:8080/get_items', data, config)
                         .then(response => {
                             this.persons = response.data;
                             console.log(this.persons)
@@ -203,7 +203,7 @@
                     const data = {
                         itemId: this.id
                     }
-                    axios.post('http://10.24.116.63:5000/create_buy_order', data, config)
+                    axios.post('http://127.0.0.1:8080/create_buy_order', data, config)
                         .then(response => {
                             this.persons = response.data;
                             console.log(this.persons);

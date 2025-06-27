@@ -163,7 +163,7 @@
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     };
-                    axios.post('http://10.24.116.63:5000/getAvailableEnergy', data, config)
+                    axios.post('http://127.0.0.1:8080/getAvailableEnergy', data, config)
                         .then(response => {
                             this.enengy = response.data;
                             console.log(this.enengy)

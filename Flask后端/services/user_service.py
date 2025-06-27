@@ -30,9 +30,19 @@ def register_impl(data):
     if user:
         return exists_result
      # 通过用户名在webase中生成一个测试用户，并获得地址,创建测试用户
-    url = f"http://{webase_host}:5002/WeBASE-Front/privateKey?type=0&userName={username}"
-    response = requests.get(url)
-    address = response.json().get("address")
+        url = f"http://{webase_host}:5002/WeBASE-Front/privateKey?type=0&userName={username}&groupId=group0"
+    try:
+        response = requests.get(url)
+        response_data = response.json()
+        if response.status_code == 200 and response_data.get("code") == 0:
+            address = response_data.get("address")
+        else:
+            print(f"WeBASE地址生成失败: {response_data}")
+            # 如果WeBASE服务不可用，使用临时地址或返回错误
+            address = None
+    except Exception as e:
+        print(f"调用WeBASE服务异常: {e}")
+        address = None
     # 创建新用户
     new_user = User(username=username, address=address)
     new_user.set_password(password)  # 将明文密码转换成哈希值并存储到数据库中

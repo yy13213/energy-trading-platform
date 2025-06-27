@@ -1,6 +1,7 @@
 import requests
 import json
 import config
+import time
 # import hashlib
 # import random
 
@@ -23,9 +24,10 @@ import config
 #     return otherStyleTime
 
 def common_bc_req(user_address, contract_name, func_name, param, contract_address, abi):
-
+    start_time = time.time()
+    
     data = {
-        "groupId": "1",
+        "groupId": "group0",
         "user": user_address,  #使用这个接口的用户 地址
         "contractName": contract_name, #合约名称
         "version": "",  #版本
@@ -37,10 +39,26 @@ def common_bc_req(user_address, contract_name, func_name, param, contract_addres
         "useCns": False,
         "cnsName": ""
     }
+    
     headers = {'Content-Type': 'application/json'}
-    res = requests.post(url="http://%s:5002/WeBASE-Front/trans/handle"%(config.webase_host),
-                        headers=headers,
-                        data=json.dumps(data).replace("False", "false").replace("True", "true"))
- # 这一行代码是将数据中的任何布尔值（True或False）替换为其小写等效物（true或false）。
- # 这样做是为了确保数据处于向WeBASE API发送请求的正确格式，因为API不会接受大写中的布尔值。
-    return res
+    url = f"http://{config.webase_host}:5002/WeBASE-Front/trans/handle"
+    
+    json_data = json.dumps(data).replace("False", "false").replace("True", "true")
+    
+    try:
+        res = requests.post(url=url,
+                            headers=headers,
+                            data=json_data)
+        
+        duration = round((time.time() - start_time) * 1000, 2)
+        print(f"⛓️ 区块链调用 {func_name}: {duration}ms")
+        
+        if duration > 1000:
+            print(f"🐌 区块链调用慢: {func_name} 耗时 {duration}ms")
+        
+        return res
+        
+    except Exception as e:
+        duration = round((time.time() - start_time) * 1000, 2)
+        print(f"❌ 区块链请求异常: {e} (耗时: {duration}ms)")
+        raise
