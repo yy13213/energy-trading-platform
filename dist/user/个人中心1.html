@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="../data/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <link rel="shortcut icon" href="../logo/a252611c614b4ad9aa23b814d858f15.png" type="image/x-icon"/>
+    </head>
+    <style>
+    body #container
+    {
+        background-color:rgb(198, 204, 196);
+        opacity: 0.7;
+        width:60%;   
+        height: 350px;   
+        margin:0 auto;
+        margin-top:200px;
+            border-radius:20px;
+    }
+    
+    body #header
+    {
+    height:160px;	
+    text-align:center;
+    margin:0px;
+    }
+    
+    body #header-content
+    {
+        color:white;
+        height:75px;
+        
+    }
+    
+    body #header-content a
+    {
+        font-family: "楷体";
+        color:white;
+        text-decoration:none;
+        font-size:22px;
+        letter-spacing:10px;
+    }
+    
+    body #header-content a:hover
+    {
+        text-decoration: underline;
+    }
+    
+    body #header-content p
+    {
+        font-size:15px;
+    }
+    
+    body #content
+    {
+        top: 45%;
+        left: 33.2%;
+        margin:0px;
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    body #content #main-content a
+    {
+        
+        color:white;
+        text-decoration: none;
+    }
+    
+    body #content #main-content a:hover
+    {
+        text-decoration: underline;
+        color:white;
+    }
+    
+    body #footer hr2
+    {
+        margin-top:300px;
+    }
+    
+    body #footer #footer-content button
+    {
+        border:0;
+        background-color:#000000;
+        font-size:20px;
+        color:white;
+        border-radius: 10px;
+        float: right;
+        margin-right: 25px;
+    }
+    body
+    {
+        /* height: 1000px; */
+        background:url(../logo/89c2ca188a4c02152ae0a5eeb1c51de.png);
+        background-size:100%;
+        background-repeat: no-repeat;
+    }
+
+
+    </style>
+    <body>
+        <!--标签整体容器-->
+		<div id="container">
+			<!--内容-->
+		  	<div id="container-inner">
+			    <!--页头 -->
+				<div id="header">
+					<div id="header-content" style="padding: 20px; " >
+					<h1 id="change" >个人中心</h1>
+					<p>
+                        Personal   Center</p>
+					<hr class="hr1"/>
+					</div>	
+				</div>
+				
+				<!-- 中间部分-->
+                
+				<div id="content">
+					<div id="main-content">
+						<div id="main-content">
+                            <p style="color: #000000;">您的用户名：<span  >{{username}}</span>
+                            </p>
+                            <p style="color: #000000; ">我的链上地址：<span >{{address}}</span>
+                            </p>
+                            
+						</div>
+					<div>
+				</div>
+				
+				<!--页脚-->
+				<div id="footer">
+					<div id="footer-container">
+						<div id="footer-content">
+							<hr class="hr2"/>
+							<button><a href="./index.html">back</a></button>
+						</div>
+					</div>
+		         </div>
+			</div>
+		</div>
+
+    </body>
+    <script>
+        new Vue({
+            el: "#container",
+            data: {
+                persons:[],
+                username:"",
+                address:""
+            },
+            
+        methods: {
+      
+    
+        fetchItems() {
+            // alert("123")
+					// const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3MSwidXNlcm5hbWUiOiJ3aG53aG4ifQ.K1h8Q9uGvq9d7Bj5AJz2zxlNg2_ul8uwK4DC8byd0Lk';
+					const token = localStorage.getItem('token')
+					const config = {
+						headers: {
+							'Content-Type': 'application/json',
+							'Accept': 'application/json',
+							'Authorization': ` ${token}`,
+							'X-Requested-With': 'XMLHttpRequest'
+						}
+					};
+					const data = {
+						keyword: this.keyword
+					}
+					axios.post('http://10.24.116.63:5000/getusername', data, config)
+						.then(response => {
+							this.persons = response.data;
+                            this.username =  this.persons.username;
+                            this.address = this.persons.address;
+							console.log(this.persons.username)
+							this.filterItems();
+						})
+						.catch(error => {
+							console.log(error);
+						});
+            },
+            
+        },
+        created() {
+                    this.fetchItems();
+            },
+      // 添加 token 验证逻辑
+      verifyToken(token, secret) {
+          // 解码 token，验证是否过期以及签名是否正确
+            const decoded = verify(token, secret);
+            // 返回 token 包含的信息
+            return decoded;
+        },
+        mounted() {
+            const token = localStorage.getItem('token')
+            if (token) {
+                const decoded = this.verifyToken(token, 'secret_key')
+                console.log(decoded)
+                if (decoded) {
+                    this.isAuthenticated = true
+                    this.username = decoded.username
+                } else {
+                    // token 无效，重定向至登录页面
+                    window.location.href = '../login/login.html'
+                    alert(" token 无效，重定向至登录页面")
+                }
+            } 
+            else {
+                // token 不存在，重定向至登录页面
+                window.location.href = '../login/login.html'
+                alert(" token 不存在，重定向至登录页面")
+            }
+            }
+        })
+    </script>
+    
+</html>
