@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>创建设备</title>
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link href="../css/我的产权/styles.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="shortcut icon" href="../logo/a252611c614b4ad9aa23b814d858f15.png" type="image/x-icon"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+
+        }
+
+
+
+        form {
+            width: 300px;
+            margin: 0 auto;
+            margin-top: 200px;
+            background-color: #f8f8f8;
+            padding: 20px;
+            opacity: 0.9;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+
+
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #55e1f6;
+        }
+    </style>
+    
+</head>
+
+<body>
+    <div id="app1">
+		<el-row class="tac">
+		  <el-col :span="12">
+			<h3>能源交易平台</h3>
+			<el-menu
+			  default-active="2"
+			  class="el-menu-vertical-demo"
+			  @open="handleOpen"
+			  @close="handleClose">
+			  <el-menu-item index="1">
+				<i class="el-icon-star-off"></i>
+				<el-link href="../user/index.html">主页</el-link>
+			  </el-menu-item>
+			  <el-menu-item index="2">
+				<i class="el-icon-cpu"></i>
+				<el-link href="../user/information.html">仪表盘</el-link>
+			  </el-menu-item>
+			  <el-menu-item index="3">
+				<i class="el-icon-chat-line-square"></i>
+				<el-link href="../user/chat.html">联系客服</el-link>
+			  </el-menu-item>
+			  <el-submenu index="4">
+				<template slot="title">
+				  <i class="el-icon-menu"></i>
+				  <span>产权交易</span>
+				</template>
+				<el-menu-item-group>
+				  <el-menu-item index="4-1">
+					<el-link href="../user/产权市场.html">产权市场</el-link>
+				  </el-menu-item>
+				  <el-menu-item index="4-2">
+					<el-link href="../user/我的设备列表.html">我的产权</el-link>
+				  </el-menu-item>
+			  </el-submenu>
+			  <el-submenu index="5">
+				<template slot="title">
+				  <i class="el-icon-menu"></i>
+				  <span>能源交易</span>
+				</template>
+				<el-menu-item-group>
+				  <el-menu-item index="5-1">
+					<el-link href="../user/能源市场.html">能源市场</el-link>
+				  </el-menu-item>
+				  <el-menu-item index="5-2">
+					<el-link href="../user/我的能源.html">我的能源</el-link>
+				  </el-menu-item>
+			  </el-submenu>
+			</el-menu>
+		  </el-col>
+		</el-row>
+	</div>
+
+  <div id="background">
+		<img src="../logo/aaec5e06e60a9da19f7578112ab99ea.png" class="back" style="width: 100%;height: 100%;margin:0;background-repeat: no-repeat;background-size: cover;">
+	</div>
+
+  <div id="personal_account">
+    <el-row class="block-col-2">
+      <el-col :span="12">
+        <el-dropdown>
+          <template>
+            <div class="demo-type">
+              <div>
+                <el-avatar src="../logo/微信图片_20230407094333.png"></el-avatar>
+              </div>
+            </div>
+          </template>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item icon="el-icon-user-solid"><el-link href="../user/个人中心.html">个人中心</el-link></el-dropdown-item>
+            <el-dropdown-item icon="el-icon-switch-button" onclick="logout()">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </el-col>
+    </el-row>
+  </div>
+  <script>
+    function logout(){ 
+            // localStorage.setItem('token', '');
+            window.localStorage.clear()
+            alert(" 退出登录 ")
+            window.location.href = '../login/login.html'
+          }
+  </script>
+
+	<!-- import Vue before Element -->
+	<script src="../data/vue.js"></script>
+	<!-- import JavaScript -->
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+	<script>
+		new Vue({
+		el: '#app1',
+		data: function() {
+			return { visible: false }
+		}
+		})
+    new Vue().$mount('#personal_account')
+    
+	</script>
+
+    <div id="app">
+        <form @submit.prevent="create">
+            <label for="item_name">设备名称:</label>
+            <input type="text" v-model="item_name"> <br>
+            <label for="item_porwer">额定功率：</label>
+            <input type="text" id="item_porwer" v-model="item_power"> <br>
+
+            <label for="item_porwer">所在位置：</label>
+            <input type="text" id="item_porwer" v-model="item_location"><br>
+
+            <button type="submit">提交</button>
+        </form>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                item_name: '',
+                item_power: '',
+                item_location: '',
+                created_at: ''
+            },
+
+            methods: {
+
+                create() {
+                      if (this.item_name == "" || this.item_power == ""|| this.item_power==""|| this.item_location=="") {
+                      alert("检查你的输入是否完整")
+                      return null;
+                    };
+                    const currentDate = new Date().toLocaleString();
+                    const data = {
+                        equ_name: this.item_name,
+                        equ_power: this.item_power,
+                        equ_local: this.item_location,
+                        addTime: currentDate
+                    };
+
+                    const token = localStorage.getItem('token')
+                    const config = {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': ` ${token}`,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    };
+                    axios.post('http://127.0.0.1:8080/create_equipment', data, config)
+                        .then(response => {
+                            alert("添加成功！")
+                            this.persons = response.data;
+                            console.log(this.persons)
+                            window.location.href = "./我的设备列表.html";
+                        })
+                        .catch(error => {
+                            console.log(error);
+                        });
+                }
+            }
+        })
+
+        new Vue({
+        el: '#app2',
+        data() {
+            return {
+                isAuthenticated: false,
+                username: '完成'
+            }
+        },
+        methods: {
+          
+          // 添加 token 验证逻辑
+          verifyToken(token, secret) {
+              // 解码 token，验证是否过期以及签名是否正确
+                const decoded = verify(token, secret);
+                // 返回 token 包含的信息
+                return decoded;
+            }
+        },
+
+          })
+
+    </script>
+
+</body>
+
+</html>

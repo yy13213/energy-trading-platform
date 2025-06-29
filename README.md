@@ -174,6 +174,46 @@ admin_address = "0x84703c57a736246296d33ad2efa22126afba5c9e"
 - `GET /cache_stats` - 缓存统计
 - `POST /log_customer_service` - 客服访问日志
 
+## 🧪 测试环境
+
+本项目包含完整的性能测试和并发测试环境，确保系统在高负载下的稳定性。
+
+### 🎯 测试目标
+- **平均响应时间** < 3秒
+- **并发用户数** > 200
+- **系统稳定性** > 95%
+
+### 📚 测试文档
+- **[tests/README.md](tests/README.md)** - 测试环境完整指南
+- **[tests/TEST_PLAN.md](tests/TEST_PLAN.md)** - 详细测试计划
+- **[tests/TEST_CHECKLIST.md](tests/TEST_CHECKLIST.md)** - 测试执行检查清单
+- **[tests/reports/TEST_REPORT_TEMPLATE.md](tests/reports/TEST_REPORT_TEMPLATE.md)** - 测试报告模板
+
+### 🚀 快速测试
+```bash
+# 进入测试目录
+cd tests
+
+# 安装测试依赖
+pip install -r requirements.txt
+
+# 运行性能测试
+python performance/performance_test.py
+
+# 运行并发测试
+python performance/concurrent_test.py
+
+# 批量运行所有测试
+python run_all_tests.py
+```
+
+### 📊 测试特性
+- ✅ 异步性能测试框架
+- ✅ 并发用户模拟
+- ✅ 自动化报告生成
+- ✅ 详细数据统计分析
+- ✅ 完整的测试文档体系
+
 ## 🤝 贡献指南
 
 1. Fork 本仓库
@@ -197,4 +237,4 @@ admin_address = "0x84703c57a736246296d33ad2efa22126afba5c9e"
 
 ---
 
-⭐ 如果这个项目对您有帮助，请给我们一个星标！ 
+⭐ 如果这个项目对您有帮助，请给我们一个星标！

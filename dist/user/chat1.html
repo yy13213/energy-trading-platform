@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>
+        联系客服
+    </title>
+    <!-- <link href="../css.css" rel="stylesheet" type="text/css"> -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link href="../data/css.css" rel="stylesheet" type="text/css">
+    <link rel="shortcut icon" href="../logo/a252611c614b4ad9aa23b814d858f15.png" type="image/x-icon"/>
+</head>
+
+<body>
+    <iframe src="https://yzf.qq.com/xv/web/static/chat/index.html?sign=37ef9b97807c01c020119fe61ce4b96a28b65e900afe8547927989097552f108812fb71a744137a3463e318ee12c411ff30984" width="69%" height="710px">
+    </iframe>
+  <div id="app1">
+    <el-row class="tac">
+      <el-col :span="12">
+        <h3>能源交易平台</h3>
+        <el-menu
+          default-active="2"
+          class="el-menu-vertical-demo"
+          @open="handleOpen"
+          @close="handleClose">
+          <el-menu-item index="1">
+            <i class="el-icon-star-off"></i>
+            <el-link href="../user/index.html">主页</el-link>
+          </el-menu-item>
+          <el-menu-item index="2">
+            <i class="el-icon-cpu"></i>
+            <el-link href="../user/information.html">仪表盘</el-link>
+          </el-menu-item>
+          <el-menu-item index="3">
+            <i class="el-icon-chat-line-square"></i>
+            <el-link href="../user/chat.html">联系客服</el-link>
+          </el-menu-item>
+          <el-submenu index="4">
+            <template slot="title">
+              <i class="el-icon-menu"></i>
+              <span>产权交易</span>
+            </template>
+            <el-menu-item-group>
+              <el-menu-item index="4-1">
+                <el-link href="../user/产权市场.html">产权市场</el-link>
+              </el-menu-item>
+              <el-menu-item index="4-2">
+                <el-link href="../user/我的设备列表.html">我的产权</el-link>
+              </el-menu-item>
+          </el-submenu>
+          <el-submenu index="5">
+            <template slot="title">
+              <i class="el-icon-menu"></i>
+              <span>能源交易</span>
+            </template>
+            <el-menu-item-group>
+              <el-menu-item index="5-1">
+                <el-link href="../user/能源市场.html">能源市场</el-link>
+              </el-menu-item>
+              <el-menu-item index="5-2">
+                <el-link href="../user/我的能源.html">我的能源</el-link>
+              </el-menu-item>
+          </el-submenu>
+        </el-menu>
+      </el-col>
+    </el-row>
+  </div>
+
+  <div id="background">
+		<img src="../logo/89c2ca188a4c02152ae0a5eeb1c51de.png" class="back" style="width: 100%;height: 100%;margin:0;background-repeat: no-repeat;background-size: cover;">
+	</div>
+
+  <div id="image">
+    <img src="" alt="">
+  </div>
+
+  <div id="personal_account">
+    <el-row class="block-col-2">
+      <el-col :span="12">
+        <el-dropdown>
+          <template>
+            <div class="demo-type">
+              <div>
+                <el-avatar src="../logo/微信图片_20230407094333.png"></el-avatar>
+              </div>
+            </div>
+          </template>
+          <el-dropdown-menu slot="dropdown" id="logout">
+            <el-dropdown-item icon="el-icon-user-solid"><el-link href="../user/个人中心.html">个人中心</el-link></el-dropdown-item>
+            <el-dropdown-item icon="el-icon-switch-button" onclick="logout()">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </el-col>
+    </el-row>
+  </div>
+<script>
+    function logout(){ 
+            localStorage.setItem('token', '');
+            window.localStorage.clear()
+            alert(" 退出登录 ")
+            window.location.href = '../login/login.html'
+          }
+</script>
+<!-- import Vue before Element -->
+<script src="../data/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+    new Vue({
+    el: '#app1',
+    data: function() {
+        return { visible: false }
+    }
+    })
+    new Vue().$mount('#personal_account')
+
+    new Vue({
+    el: '#app',
+    data() {
+        return {
+            isAuthenticated: false,
+            username: '完成'
+        }
+    },
+    methods: {
+      
+      // 添加 token 验证逻辑
+      verifyToken(token, secret) {
+          // 解码 token，验证是否过期以及签名是否正确
+            const decoded = verify(token, secret);
+            // 返回 token 包含的信息
+            return decoded;
+        }
+    },
+    mounted() {
+        const token = localStorage.getItem('token')
+        if (token) {
+            const decoded = this.verifyToken(token, 'secret_key')
+            console.log(decoded)
+            if (decoded) {
+                this.isAuthenticated = true
+                this.username = decoded.username
+            } else {
+                // token 无效，重定向至登录页面
+                window.location.href = '../login/login.html'
+                alert(" token 无效，重定向至登录页面")
+            }
+        } 
+        else {
+            // token 不存在，重定向至登录页面
+            window.location.href = '../login/login.html'
+            alert(" token 不存在，重定向至登录页面")
+        }
+        }
+      })
+
+</script>
+</body>
+
+</html>

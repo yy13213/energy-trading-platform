@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备详情</title>
+    <!-- <script src="./js/vue.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <link href="../css/设备详情/styles.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="shortcut icon" href="../logo/a252611c614b4ad9aa23b814d858f15.png" type="image/x-icon"/>
+</head>
+
+<body>
+    <div id="app">
+		<el-row class="tac">
+		  <el-col :span="12">
+			<h3>能源交易平台</h3>
+			<el-menu
+			  default-active="2"
+			  class="el-menu-vertical-demo"
+			  @open="handleOpen"
+			  @close="handleClose">
+			  <el-menu-item index="1">
+				<i class="el-icon-star-off"></i>
+				<el-link href="../user/index.html">主页</el-link>
+			  </el-menu-item>
+			  <el-menu-item index="2">
+				<i class="el-icon-cpu"></i>
+				<el-link href="../user/information.html">仪表盘</el-link>
+			  </el-menu-item>
+			  <el-menu-item index="3">
+				<i class="el-icon-chat-line-square"></i>
+				<el-link href="../user/chat.html">联系客服</el-link>
+			  </el-menu-item>
+			  <el-submenu index="4">
+				<template slot="title">
+				  <i class="el-icon-menu"></i>
+				  <span>产权交易</span>
+				</template>
+				<el-menu-item-group>
+				  <el-menu-item index="4-1">
+					<el-link href="../user/产权市场.html">产权市场</el-link>
+				  </el-menu-item>
+				  <el-menu-item index="4-2">
+					<el-link href="../user/我的设备列表.html">我的产权</el-link>
+				  </el-menu-item>
+			  </el-submenu>
+			  <el-submenu index="5">
+				<template slot="title">
+				  <i class="el-icon-menu"></i>
+				  <span>能源交易</span>
+				</template>
+				<el-menu-item-group>
+				  <el-menu-item index="5-1">
+					<el-link href="../user/能源市场.html">能源市场</el-link>
+				  </el-menu-item>
+				  <el-menu-item index="5-2">
+					<el-link href="../user/我的能源.html">我的能源</el-link>
+				  </el-menu-item>
+			  </el-submenu>
+			</el-menu>
+		  </el-col>
+		</el-row>
+	</div>
+
+    <div id="personal_account">
+		<el-row class="block-col-2">
+			<el-col :span="12">
+			<el-dropdown>
+				<template>
+				<div class="demo-type">
+					<div>
+					<el-avatar src="../logo/微信图片_20230407094333.png"></el-avatar>
+					</div>
+				</div>
+				</template>
+				<el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item icon="el-icon-user-solid"><el-link href="../user/个人中心.html">个人中心</el-link></el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-switch-button" onclick="logout()">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+			</el-dropdown>
+			</el-col>
+		</el-row>
+	</div>
+
+    <div id="background">
+		<img src="../logo/aaec5e06e60a9da19f7578112ab99ea.png" class="back" style="width: 100%;height: 100%;margin:0;background-repeat: no-repeat;background-size: cover;">
+	</div>
+    <script>
+        function logout(){ 
+                // localStorage.setItem('token', '');
+                window.localStorage.clear()
+                alert(" 退出登录 ")
+                window.location.href = '../login/login.html'
+              }
+      </script>
+
+	<!-- import Vue before Element -->
+	<script src="../data/vue.js"></script>
+	<!-- import JavaScript -->
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+	<script>
+		new Vue({
+		el: '#app',
+		data: function() {
+			return { visible: false }
+		}
+		})
+        new Vue().$mount('#personal_account')
+        
+	</script>
+
+    <div id="root">
+        <h1> &nbsp;&nbsp; {{name}}</h1>
+        <h1 :x='name'></h1>
+
+        <ul class="ul_name">
+            <li v-for="(item,index) in persons" :key="index" v-if="item.id ==id">
+                <div class="bod">
+                    <div width="250px" height="200px">
+                        <img src="../images/产权市场/OIP.jpg" alt="" width="250px"
+                            style="margin-top: 0px; box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgb(209, 213, 219) 0px 0px 0px 1px inset;">
+                    </div>
+                    <span class="mess">
+                        <br>
+                        <p style="font-size: 20px; font-weight: 700;">{{item.name}}</p>
+                        <p>设备id： {{item.id}}</p>
+                        <p>额定功率：{{item.power}}</p>
+                        <p>所在位置：{{item.equ_local}}</p>
+                        <p>设备上链时间：{{item.addTime}}</p>
+                        <p v-if="item.price !==0">在售金额：{{item.price}}</p>
+                        <p v-else>待出售</p>
+                    </span>
+                    <div style="margin:50px;margin-top: 150px;">
+                        <a href="" @click="sell()" v-if="item.price===0" class="button">出售</a>
+                        <a href="" @click="q_sell()" v-else class="button">取消出售</a>
+                    </div>
+
+                </div>
+            </li>
+        </ul>
+    </div>
+    <script>
+        new Vue({
+            el: "#root",
+            data: {
+                isAuthenticated: false,
+                keyword: "10",
+                name: "设备详情",
+                persons: [],
+                id: "",
+                price:0,
+                butt : 1
+
+            },
+
+            methods: {
+                fetchItems() {
+                    // const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3MSwidXNlcm5hbWUiOiJ3aG53aG4ifQ.K1h8Q9uGvq9d7Bj5AJz2zxlNg2_ul8uwK4DC8byd0Lk';
+                    const token = localStorage.getItem('token')
+                    const config = {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': ` ${token}`,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    };
+                    const data = {
+                        id: this.id
+                    }
+                    axios.post('http://127.0.0.1:8080/get_equipment_id', data, config)
+                        .then(response => {
+                            this.persons = response.data;
+                            console.log(this.persons)
+                            // this.filterItems();
+                            // 获取URL中的参数
+                            const urlParams = new URLSearchParams(window.location.search);
+                            // 获取ID参数的值
+                            this.id = urlParams.get('id');
+                        })
+                        .catch(error => {
+                            console.log("错误")
+                            console.log(error);
+                        });
+                },
+                sell() {
+                    const token = localStorage.getItem('token');
+                    const config = {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': ` ${token}`,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    };
+                    const inputPrice = prompt("请输入出售金额：");
+                    if (inputPrice === null || isNaN(parseFloat(inputPrice)) || parseFloat(inputPrice) <= 0) {
+                        alert("请输入有效的金额且大于0！");
+                        return;
+                    }
+                    this.price = parseFloat(inputPrice);
+                    alert("您输入的出售金额是：" + this.price);
+                    // this.butt = 0
+
+                    const data = {
+                        id: this.id,
+                        price : this.price
+                    }
+                    axios.post('http://127.0.0.1:8080/create_production_order', data, config)
+                        .then(response => {
+                            this.persons = response.data;
+                            // 将跳转代码移到这里
+                            // window.location.href = "./我的设备列表.html";
+                        })
+                        .catch(error => {
+                            console.log(error);
+                            alert("已经出售")
+                        });
+                        alert("出售成功！");
+                        
+                },
+                q_sell(){
+                    const token = localStorage.getItem('token');
+                    const config = {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': ` ${token}`,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    };
+                    const data = {
+                        itemId: this.id
+                    }
+                    axios.post('http://127.0.0.1:8080/create_buy_order', data, config)
+                        .then(response => {
+                            this.persons = response.data;
+                            this.price = 0; // 将 price 更新为 0
+                            this.butt = 1
+                            // 将跳转代码移到这里
+                            // window.location.href = "./我的设备列表.html";
+                        })
+                        .catch(error => {
+                            console.log(error);
+                            alert("取消失败！");
+                        });
+                        alert("取消成功");
+                }
+
+            },
+
+            created() {
+                this.fetchItems();
+            },
+            
+        })
+        
+
+    </script>
+</body>
+
+</html>

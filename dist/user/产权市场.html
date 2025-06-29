@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>产权市场</title>
+	<!-- <script src="../data/vue.js"></script> -->
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+	<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+	<link href="../css/产权市场/style.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	<link rel="shortcut icon" href="../logo/a252611c614b4ad9aa23b814d858f15.png" type="image/x-icon"/>
+
+</head>
+
+<body>
+	<div id="app">
+		<el-row class="tac">
+		  <el-col :span="12">
+			<h3>能源交易平台</h3>
+			<el-menu
+			  default-active="2"
+			  class="el-menu-vertical-demo"
+			  @open="handleOpen"
+			  @close="handleClose">
+			  <el-menu-item index="1">
+				<i class="el-icon-star-off"></i>
+				<el-link href="../user/index.html">主页</el-link>
+			  </el-menu-item>
+			  <el-menu-item index="2">
+				<i class="el-icon-cpu"></i>
+				<el-link href="../user/information.html">仪表盘</el-link>
+			  </el-menu-item>
+			  <el-menu-item index="3">
+				<i class="el-icon-chat-line-square"></i>
+				<el-link href="../user/chat.html">联系客服</el-link>
+			  </el-menu-item>
+			  <el-submenu index="4">
+				<template slot="title">
+				  <i class="el-icon-menu"></i>
+				  <span>产权交易</span>
+				</template>
+				<el-menu-item-group>
+				  <el-menu-item index="4-1">
+					<el-link href="../user/产权市场.html">产权市场</el-link>
+				  </el-menu-item>
+				  <el-menu-item index="4-2">
+					<el-link href="../user/我的设备列表.html">我的产权</el-link>
+				  </el-menu-item>
+			  </el-submenu>
+			  <el-submenu index="5">
+				<template slot="title">
+				  <i class="el-icon-menu"></i>
+				  <span>能源交易</span>
+				</template>
+				<el-menu-item-group>
+				  <el-menu-item index="5-1">
+					<el-link href="../user/能源市场.html">能源市场</el-link>
+				  </el-menu-item>
+				  <el-menu-item index="5-2">
+					<el-link href="../user/我的能源.html">我的能源</el-link>
+				  </el-menu-item>
+			  </el-submenu>
+			</el-menu>
+		  </el-col>
+		</el-row>
+	</div>
+
+	<div id="background">
+		<img src="../logo/aaec5e06e60a9da19f7578112ab99ea.png" class="back" style="width: 100%;height: 100%;margin:0;background-repeat: no-repeat;background-size: cover;">
+	</div>
+
+	<div id="personal_account">
+		<el-row class="block-col-2">
+			<el-col :span="12">
+			<el-dropdown>
+				<template>
+				<div class="demo-type">
+					<div>
+					<el-avatar src="../logo/微信图片_20230407094333.png"></el-avatar>
+					</div>
+				</div>
+				</template>
+				<el-dropdown-menu slot="dropdown">
+					<el-dropdown-item icon="el-icon-user-solid"><el-link href="../user/个人中心.html">个人中心</el-link></el-dropdown-item>
+					<el-dropdown-item icon="el-icon-switch-button" onclick="logout()">退出登录</el-dropdown-item>
+				</el-dropdown-menu>
+			</el-dropdown>
+			</el-col>
+		</el-row>
+	</div>
+	<script>
+		function logout(){ 
+				localStorage.setItem('token', '');
+				window.localStorage.clear()
+				alert(" 退出登录 ")
+				window.location.href = '../login/login.html'
+			  }
+	</script>
+
+	<!-- import Vue before Element -->
+	<script src="../data/vue.js"></script>
+	<!-- import JavaScript -->
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+	<script>
+		new Vue({
+		el: '#app',
+		data: function() {
+			return { visible: false }
+		}
+		})
+		new Vue().$mount('#personal_account')
+	</script>
+		
+	<div id="root">
+		<h1> &nbsp;&nbsp; {{name}}</h1>
+		<h1 :x='name'></h1>
+		<p class="search-label"> 搜索设备： <input type="text" placeholder="输入名字" v-model="keyword" class="search-box"></p>
+		<h2>正在交易中设备</h2>
+		<ul class="ul_name">
+			<li v-for="(item,index) in filepersons" :key="index">
+				<div class="nbsb">
+					<img src="../images/产权市场/OIP.jpg" alt="" width="100px"><a :href=" '设备详情.html?id=' + item.id"class="button">查看详情</a>
+				</div>
+
+				<br>设备id： {{item.id}}
+				<br>设备名称：{{item.name}}
+				<br />额定功率：{{item.power}}<br />设备位置：{{item.equ_address}}<br />设备所属地址：<p
+					style="width: 200px; overflow-x: auto;">{{item.address}}
+				</p>
+			</li>
+		</ul>
+	</div>
+	<style>
+	.ul_name li {
+		list-style: none;
+		/* border: 1px red solid; */
+		padding: 20px;
+		width: 290px;
+		height: 230px;
+		margin: 50px;
+		padding-bottom: 50px;
+		border-radius: 9px;
+		background: #f8f8f8;
+		box-shadow: 10px 10px 30px #868686,
+			-10px -10px 30px #ffffff;
+	}</style>
+
+	<script>
+		new Vue({
+			el: "#root",
+			data: {
+				isAuthenticated: false,
+				keyword: "",
+				name: "产权市场",
+				persons: [],
+				filepersons: []
+			},
+			watch: {
+				keyword: {
+					immediate: true,
+					handler(val) {
+						this.filterItems();
+					}
+				}
+			},
+			methods: {
+				fetchItems() {
+					// const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3MSwidXNlcm5hbWUiOiJ3aG53aG4ifQ.K1h8Q9uGvq9d7Bj5AJz2zxlNg2_ul8uwK4DC8byd0Lk';
+					const token = localStorage.getItem('token')
+					const config = {
+						headers: {
+							'Content-Type': 'application/json',
+							'Accept': 'application/json',
+							'Authorization': ` ${token}`,
+							'X-Requested-With': 'XMLHttpRequest'
+						}
+					};
+					const data = {
+						keyword: this.keyword
+					}
+					axios.post('http://127.0.0.1:8080/get_items', data, config)
+						.then(response => {
+							this.persons = response.data;
+							console.log(this.persons)
+							this.filterItems();
+						})
+						.catch(error => {
+							console.log(error);
+						});
+				},
+				filterItems() {
+					this.filepersons = this.persons.filter((p) => {
+						return p.name.indexOf(this.keyword) != -1
+						// return p.equ_address.indexOf(this.keyword) != -1 
+					});
+				}
+			},
+			created() {
+				this.fetchItems();
+			},
+
+		})
+
+
+	</script>
+</body>
+
+</html>

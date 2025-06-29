@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>
+        仪表盘
+    </title>
+    <!-- <link href="../css.css" rel="stylesheet" type="text/css"> -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link href="../css/仪表盘/styles.css" rel="stylesheet" type="text/css">
+    <link rel="shortcut icon" href="../logo/a252611c614b4ad9aa23b814d858f15.png" type="image/x-icon"/>
+    <script src="../css/仪表盘/echarts.js"></script>
+</head>
+
+<body>
+  <div id="app1">
+    <el-row class="tac">
+      <el-col :span="12">
+        <h3>能源交易平台</h3>
+        <el-menu
+          default-active="2"
+          class="el-menu-vertical-demo"
+          @open="handleOpen"
+          @close="handleClose">
+          <el-menu-item index="1">
+            <i class="el-icon-star-off"></i>
+            <el-link href="../user/index.html">主页</el-link>
+          </el-menu-item>
+          <el-menu-item index="2">
+            <i class="el-icon-cpu"></i>
+            <el-link href="../user/information.html">仪表盘</el-link>
+          </el-menu-item>
+          <el-menu-item index="3">
+            <i class="el-icon-chat-line-square"></i>
+            <el-link href="../user/chat.html">联系客服</el-link>
+          </el-menu-item>
+          <el-submenu index="4">
+            <template slot="title">
+              <i class="el-icon-menu"></i>
+              <span>产权交易</span>
+            </template>
+            <el-menu-item-group>
+              <el-menu-item index="4-1">
+                <el-link href="../user/产权市场.html">产权市场</el-link>
+              </el-menu-item>
+              <el-menu-item index="4-2">
+                <el-link href="../user/我的设备列表.html">我的产权</el-link>
+              </el-menu-item>
+          </el-submenu>
+          <el-submenu index="5">
+            <template slot="title">
+              <i class="el-icon-menu"></i>
+              <span>能源交易</span>
+            </template>
+            <el-menu-item-group>
+              <el-menu-item index="5-1">
+                <el-link href="../user/能源市场.html">能源市场</el-link>
+              </el-menu-item>
+              <el-menu-item index="5-2">
+                <el-link href="../user/我的能源.html">我的能源</el-link>
+              </el-menu-item>
+          </el-submenu>
+        </el-menu>
+      </el-col>
+    </el-row>
+  </div>
+
+  <div id="background">
+		<img src="../logo/89c2ca188a4c02152ae0a5eeb1c51de.png" class="back" style="width: 100%;height: 100%;margin:0;background-repeat: no-repeat;background-size: cover;">
+	</div>
+
+  <div id="energybutton">
+    <button type="button" onclick="MyEnergy()">我的能源</button>
+  </div>
+  <script>
+    function MyEnergy(){ 
+      window.location.href = '../user/我的能源.html'
+    }
+  </script>
+
+  <div id="equipmentbutton">
+    <button type="button" onclick="MyEquipment()">我的产权</button>
+  </div>
+  <script>
+    function MyEquipment(){ 
+      window.location.href = '../user/我的设备列表.html'
+    }
+  </script>
+
+  <div id="personal_account">
+    <el-row class="block-col-2">
+      <el-col :span="12">
+        <el-dropdown>
+          <template>
+            <div class="demo-type">
+              <div>
+                <el-avatar src="../logo/微信图片_20230407094333.png"></el-avatar>
+              </div>
+            </div>
+          </template>
+          <el-dropdown-menu slot="dropdown" id="logout">
+            <el-dropdown-item icon="el-icon-user-solid"><el-link href="../user/个人中心.html">个人中心</el-link></el-dropdown-item>
+            <el-dropdown-item icon="el-icon-switch-button" onclick="logout()">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </el-col>
+    </el-row>
+  </div>
+  <div id="root">
+    <div id="container" style="height: 100% ;width:400px"></div>
+  </div>
+
+  <script type="text/javascript" src="../css/我的能源/echarts.js"></script>
+  <script>
+      function logout(){ 
+              localStorage.setItem('token', '');
+              window.localStorage.clear()
+              alert(" 退出登录 ")
+              window.location.href = '../login/login.html'
+            }
+  </script>
+  <!-- import Vue before Element -->
+  <script src="../data/vue.js"></script>
+  <!-- import JavaScript -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<!-- 缓存系统 -->
+	<script type="text/javascript" src="../common/cache.js"></script>
+	<script type="text/javascript">
+      var valu1;
+
+      // 使用缓存系统和预加载数据优化加载速度
+      async function fetchItems() {
+          try {
+              console.log('⚡ 开始获取仪表盘能源数据...');
+              
+              let energyResponse, sellEnergyResponse;
+              
+              // 优先使用预加载的数据
+              if (window.dashboardData) {
+                  console.log('🚀 使用预加载的能源数据 (瞬时加载)');
+                  energyResponse = { data: window.dashboardData.userEnergy };
+                  sellEnergyResponse = { data: window.dashboardData.sellEnergy };
+              } else {
+                  console.log('🔄 预加载数据不可用，使用缓存请求...');
+                  // 使用缓存系统并发请求
+                  [energyResponse, sellEnergyResponse] = await Promise.all([
+                      cachedRequest('http://127.0.0.1:8080/get_user_energy'),
+                      cachedRequest('http://127.0.0.1:8080/get_user_sell_energy')
+                  ]);
+              }
+              
+              valu1 = energyResponse.data;
+              valu2 = sellEnergyResponse.data;
+              console.log('✅ 仪表盘能源数据加载完成:', {剩余: valu1, 交易中: valu2});
+              
+              // 只在所有数据加载完后渲染一次图表
+              updateChart();
+          } catch (error) {
+              console.error('❌ 获取仪表盘能源数据失败:', error);
+              valu1 = 0;
+              valu2 = 0;
+              updateChart();
+          }
+      }
+
+      function updateChart() {
+          var dom = document.getElementById('container');
+          var myChart = echarts.init(dom, null, {
+              renderer: 'canvas',
+              useDirtyRect: false
+          });
+          var app = {};
+
+          var option;
+
+          option = {
+              tooltip: {
+                  trigger: 'item'
+              },
+              legend: {
+                  top: '5%',
+                  left: 'center'
+              },
+              series: [{
+                  name: 'Access From',
+                  type: 'pie',
+                  radius: ['40%', '70%'],
+                  avoidLabelOverlap: false,
+                  itemStyle: {
+                      borderRadius: 10,
+                      borderColor: '#fff',
+                      borderWidth: 2
+                  },
+                  label: {
+                      show: false,
+                      position: 'center'
+                  },
+                  emphasis: {
+                      label: {
+                          show: true,
+                          fontSize: 20,
+                          fontWeight: 'bold'
+                      }
+                  },
+                  labelLine: {
+                      show: false
+                  },
+                  data: [{
+                      value: valu1, //应该是剩余能源减去再交易中的能源
+                      name: '剩余能源'
+                  },
+                  {
+                      value: valu2,
+                      name: '交易中的能源'
+                  }
+                  ]
+              }]
+          };
+
+          if (option && typeof option === 'object') {
+              myChart.setOption(option);
+          }
+
+          window.addEventListener('resize', myChart.resize);
+      }
+
+      // 并发加载所有仪表盘数据
+      async function initializeDashboard() {
+          console.log('🚀 仪表盘并发加载开始...');
+          const startTime = performance.now();
+          
+          try {
+              // 并发请求所有需要的数据
+              const [energyResponse, equipmentResponse] = await Promise.all([
+                  // 获取能源数据的多个接口
+                  Promise.all([
+                      cachedRequest('http://localhost:8080/get_user_energy'),
+                      cachedRequest('http://localhost:8080/get_user_sell_energy')
+                  ]),
+                  // 获取设备数据
+                  cachedRequest('http://localhost:8080/get_user_selling_equipment')
+              ]);
+              
+              const endTime = performance.now();
+              console.log(`⚡ 仪表盘数据并发加载完成，耗时: ${(endTime - startTime).toFixed(2)}ms`);
+              
+              // 处理能源数据
+              const [userEnergyRes, sellEnergyRes] = energyResponse;
+              window.dashboardData = {
+                  userEnergy: userEnergyRes.data || 0,
+                  sellEnergy: sellEnergyRes.data || 0,
+                  equipment: equipmentResponse.data || []
+              };
+              
+              console.log('📊 仪表盘数据缓存完成:', window.dashboardData);
+              
+              // 渲染图表
+              fetchItems(); // 能源图表
+              fetchItems1(); // 设备图表
+              
+          } catch (error) {
+              console.error('❌ 仪表盘数据加载失败:', error);
+              // 降级：单独加载
+              fetchItems();
+              fetchItems1();
+          }
+      }
+      
+      // 启动仪表盘
+      initializeDashboard();
+      
+  </script>
+
+  <div id="root1">
+    <div id="container1" style="width: 600px;height:400px;"></div>
+  </div>
+
+  <script type="text/javascript">
+    var addTime = []
+    var price = []
+    
+    // 使用缓存系统和预加载数据优化设备数据获取
+    async function fetchItems1() {
+        try {
+            console.log('📈 开始获取用户出售设备数据...')
+            
+            let response;
+            
+            // 优先使用预加载的数据
+            if (window.dashboardData && window.dashboardData.equipment) {
+                console.log('🚀 使用预加载的设备数据 (瞬时加载)');
+                response = { data: window.dashboardData.equipment };
+            } else {
+                console.log('🔄 预加载数据不可用，使用缓存请求...');
+                // 使用缓存系统获取数据
+                response = await cachedRequest('http://127.0.0.1:8080/get_user_selling_equipment');
+            }
+            
+            console.log('📊 获取到设备数据:', response.data)
+            
+            // 清空之前的数据
+            addTime = []
+            price = []
+            
+            // 处理响应数据
+            if (response.data && response.data.length > 0) {
+                for (let i = 0; i < response.data.length; i++) {
+                    addTime.push(response.data[i].addTime)
+                    price.push(parseFloat(response.data[i].price))
+                }
+                console.log('✅ 设备数据处理完成:', {时间: addTime.length, 价格: price.length})
+            } else {
+                console.log('📊 没有正在出售的设备')
+            }
+            
+            // 数据获取完成后渲染图表
+            renderChart()
+        } catch (error) {
+            console.error('❌ 获取设备数据失败:', error)
+            renderChart() // 即使失败也渲染空图表
+        }
+    }
+    
+    function renderChart() {
+        console.log('🎨 开始渲染图表...')
+        
+        var chartDom = document.getElementById('container1')
+        if (!chartDom) {
+            console.error('❌ 找不到图表容器')
+            return
+        }
+        
+        var myChart = echarts.init(chartDom)
+        
+        var option = {
+            title: {
+                text: '您正在出售的产权',
+                subtext: 'time-price'
+            },
+            xAxis: {
+                data: addTime,
+                axisLabel: {
+                    inside: true,
+                    color: '#fff',
+                    interval: 0,
+                    formatter: function (value) {
+                        return value.split('').join('\n')
+                    }
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLine: {
+                    show: false
+                },
+                z: 10
+            },
+            yAxis: {
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    color: '#999'
+                }
+            },
+            dataZoom: [
+                {
+                    type: 'inside'
+                }
+            ],
+            series: [
+                {
+                    type: 'bar',
+                    showBackground: true,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#83bff6' },
+                            { offset: 0.5, color: '#188df0' },
+                            { offset: 1, color: '#188df0' }
+                        ])
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#2378f7' },
+                                { offset: 0.7, color: '#2378f7' },
+                                { offset: 1, color: '#83bff6' }
+                            ])
+                        }
+                    },
+                    data: price
+                }
+            ]
+        }
+        
+        // 点击缩放功能
+        const zoomSize = 6
+        myChart.on('click', function (params) {
+            myChart.dispatchAction({
+                type: 'dataZoom',
+                startValue: addTime[Math.max(params.dataIndex - zoomSize / 2, 0)],
+                endValue: addTime[Math.min(params.dataIndex + zoomSize / 2, price.length - 1)]
+            })
+        })
+
+        myChart.setOption(option)
+        console.log('✅ 图表渲染完成')
+        
+        window.addEventListener('resize', function() {
+            myChart.resize()
+        })
+    }
+    
+    // 页面加载后获取数据
+    fetchItems1()
+      
+    
+     
+
+
+  </script>
+
+  <script>
+      new Vue({
+      el: '#app1',
+      data: function() {
+          return { visible: false }
+      }
+      })
+      new Vue().$mount('#personal_account')
+
+      new Vue({
+      el: '#app',
+      data() {
+          return {
+              isAuthenticated: false,
+              username: '完成'
+          }
+      },
+      methods: {
+        // 添加 token 验证逻辑
+        verifyToken(token, secret) {
+            // 解码 token，验证是否过期以及签名是否正确
+              const decoded = verify(token, secret);
+              // 返回 token 包含的信息
+              return decoded;
+          }
+      },
+
+        })
+
+  </script>
+</body>
+
+</html>
