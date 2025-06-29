@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>能源市场API测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .energy-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f9f9f9;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .loading { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔋 能源市场API测试</h1>
+        
+        <div id="status" class="status loading">准备测试...</div>
+        
+        <button onclick="testAPI()" id="testBtn">测试 getAvailableEnergy API</button>
+        <button onclick="clearResults()">清除结果</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        function updateStatus(message, type = 'loading') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            updateStatus('准备测试...', 'loading');
+        }
+
+        async function testAPI() {
+            const testBtn = document.getElementById('testBtn');
+            const resultsDiv = document.getElementById('results');
+            
+            testBtn.disabled = true;
+            updateStatus('正在测试 getAvailableEnergy API...', 'loading');
+            
+            try {
+                console.log('🚀 开始测试 getAvailableEnergy API...');
+                
+                const response = await axios.post('http://127.0.0.1:8080/getAvailableEnergy', {}, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('✅ API响应:', response.data);
+                
+                if (response.data && typeof response.data === 'object') {
+                    const energyCount = Object.keys(response.data).length;
+                    updateStatus(`✅ API调用成功！找到 ${energyCount} 条能源记录`, 'success');
+                    
+                    let html = '<h3>📊 能源市场数据:</h3>';
+                    
+                    for (const [id, energyInfo] of Object.entries(response.data)) {
+                        const seller = energyInfo.address ? 
+                            energyInfo.address.substring(0, 10) + '...' + energyInfo.address.slice(-8) : 
+                            '匿名用户';
+                        
+                        html += `
+                            <div class="energy-item">
+                                <strong>能源ID:</strong> ${id}<br>
+                                <strong>数量:</strong> ${energyInfo.amount || 0} kWh<br>
+                                <strong>价格:</strong> ¥${energyInfo.price || 0}<br>
+                                <strong>卖家:</strong> ${seller}
+                            </div>
+                        `;
+                    }
+                    
+                    resultsDiv.innerHTML = html;
+                } else {
+                    updateStatus('⚠️ API返回数据格式异常', 'error');
+                    resultsDiv.innerHTML = '<p>返回数据: ' + JSON.stringify(response.data) + '</p>';
+                }
+                
+            } catch (error) {
+                console.error('❌ API测试失败:', error);
+                updateStatus(`❌ API调用失败: ${error.message}`, 'error');
+                resultsDiv.innerHTML = `<p>错误详情: ${error.response?.data || error.message}</p>`;
+            } finally {
+                testBtn.disabled = false;
+            }
+        }
+
+        // 页面加载后自动测试
+        window.addEventListener('load', () => {
+            setTimeout(testAPI, 1000);
+        });
+    </script>
+</body>
+</html> 
